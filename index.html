@@ -3,9 +3,719 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Finance Budget Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-card .amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .income-amount {
+            color: #27ae60;
+        }
+
+        .expense-amount {
+            color: #e74c3c;
+        }
+
+        .balance-amount {
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            padding: 8px;
+            font-size: 0.85rem;
+            width: auto;
+            margin-top: 10px;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .transaction-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: #f0f0f0;
+        }
+
+        .transaction-item.income {
+            border-left: 4px solid #27ae60;
+        }
+
+        .transaction-item.expense {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-category {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .transaction-item.income .transaction-amount {
+            color: #27ae60;
+        }
+
+        .transaction-item.expense .transaction-amount {
+            color: #e74c3c;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-item .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .success-message {
+            display: none;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-card .amount {
+                font-size: 1.5rem;
+            }
+
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+
+            .transaction-item {
+                flex-wrap: wrap;
+            }
+
+            .transaction-amount {
+                width: 100%;
+                margin-top: 10px;
+                text-align: left;
+            }
+
+            .date-range {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .transaction-list {
+                max-height: 400px;
+            }
+
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    financial tracker
+    <div class="container">
+        <header>
+            <h1>💰 Finance Tracker</h1>
+            <p>Manage your income and expenses with ease</p>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Income</h3>
+                <div class="amount income-amount" id="totalIncome">$0.00</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Expenses</h3>
+                <div class="amount expense-amount" id="totalExpense">$0.00</div>
+            </div>
+            <div class="summary-card">
+                <h3>Balance</h3>
+                <div class="amount balance-amount" id="totalBalance">$0.00</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Add Transaction Form -->
+            <div class="card">
+                <h2>Add Transaction</h2>
+                <div class="success-message" id="successMessage">Transaction added successfully!</div>
+                
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" required>
+                        <option value="">Select Type</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Bonus">Bonus</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount ($)</label>
+                    <input type="number" id="amount" placeholder="0.00" min="0" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" placeholder="Enter description" rows="3"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="addTransaction()">Add Transaction</button>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="card">
+                <h2>Recent Transactions</h2>
+                
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="filterTransactions('all')">All</button>
+                    <button class="filter-btn" onclick="filterTransactions('income')">Income</button>
+                    <button class="filter-btn" onclick="filterTransactions('expense')">Expenses</button>
+                </div>
+
+                <div class="transaction-list" id="transactionList">
+                    <div class="empty-state">
+                        <p>No transactions yet. Add one to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics and Charts -->
+        <div class="chart-container">
+            <h2>Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h4>Highest Expense</h4>
+                    <div class="value" id="highestExpense">$0.00</div>
+                </div>
+                <div class="stat-item">
+                    <h4>Highest Income</h4>
+                    <div class="value" id="highestIncome">$0.00</div>
+                </div>
+                <div class="stat-item">
+                    <h4>Total Transactions</h4>
+                    <div class="value" id="totalTransactions">0</div>
+                </div>
+                <div class="stat-item">
+                    <h4>Average Expense</h4>
+                    <div class="value" id="avgExpense">$0.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize transactions from localStorage
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let currentFilter = 'all';
+
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Initialize app
+        function init() {
+            displayTransactions();
+            updateSummary();
+            updateStatistics();
+        }
+
+        // Add transaction
+        function addTransaction() {
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+            const description = document.getElementById('description').value;
+
+            if (!type || !category || !amount || !date) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (amount <= 0) {
+                alert('Amount must be greater than 0');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                type,
+                category,
+                amount,
+                date,
+                description,
+                createdAt: new Date().toISOString()
+            };
+
+            transactions.unshift(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            // Clear form
+            document.getElementById('type').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('description').value = '';
+
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            setTimeout(() => successMsg.classList.remove('show'), 3000);
+
+            displayTransactions();
+            updateSummary();
+            updateStatistics();
+        }
+
+        // Display transactions
+        function displayTransactions() {
+            const transactionList = document.getElementById('transactionList');
+            const filtered = currentFilter === 'all' 
+                ? transactions 
+                : transactions.filter(t => t.type === currentFilter);
+
+            if (filtered.length === 0) {
+                transactionList.innerHTML = `
+                    <div class="empty-state">
+                        <p>No ${currentFilter === 'all' ? '' : currentFilter} transactions found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            transactionList.innerHTML = filtered.map(transaction => `
+                <div class="transaction-item ${transaction.type}">
+                    <div class="transaction-details">
+                        <div style="font-weight: 600; color: #333;">${transaction.category}</div>
+                        <div class="transaction-category">${transaction.date} ${transaction.description ? '• ' + transaction.description : ''}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="transaction-amount">${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}</div>
+                        <button class="btn-delete" onclick="deleteTransaction(${transaction.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter transactions
+        function filterTransactions(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            displayTransactions();
+        }
+
+        // Delete transaction
+        function deleteTransaction(id) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                displayTransactions();
+                updateSummary();
+                updateStatistics();
+            }
+        }
+
+        // Update summary
+        function updateSummary() {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalExpense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const balance = totalIncome - totalExpense;
+
+            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `$${totalExpense.toFixed(2)}`;
+            document.getElementById('totalBalance').textContent = `$${balance.toFixed(2)}`;
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const income = transactions.filter(t => t.type === 'income');
+            const expenses = transactions.filter(t => t.type === 'expense');
+
+            const highestIncome = income.length > 0 
+                ? Math.max(...income.map(t => t.amount)) 
+                : 0;
+
+            const highestExpense = expenses.length > 0 
+                ? Math.max(...expenses.map(t => t.amount)) 
+                : 0;
+
+            const avgExpense = expenses.length > 0 
+                ? expenses.reduce((sum, t) => sum + t.amount, 0) / expenses.length 
+                : 0;
+
+            document.getElementById('highestIncome').textContent = `$${highestIncome.toFixed(2)}`;
+            document.getElementById('highestExpense').textContent = `$${highestExpense.toFixed(2)}`;
+            document.getElementById('totalTransactions').textContent = transactions.length;
+            document.getElementById('avgExpense').textContent = `$${avgExpense.toFixed(2)}`;
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
